@@ -1,0 +1,312 @@
+/* Basic colors. */
+html {
+    color: #444;
+}
+
+body {
+    border-right: 1px solid #eee;
+}
+
+/* Fonts and lines. */
+
+body {
+    font-family: Georgia, Times, "Times New Roman", serif;
+    font-size: 16px;
+    line-height: 24px;
+    max-width: 45em;
+}
+
+p code, li code {
+    font-family: Courier, monospace;
+    font-size: 15.5px;
+}
+
+.info pre {
+    font-size: 15px;
+}
+
+.acronym {
+    font-variant: small-caps;
+    text-transform: lowercase;
+    font-size: 20px;
+    line-height: 1; /* Inheriting it messes up the paragraphs somehow. */
+    letter-spacing: 0.5px;
+}
+
+p em {
+    font-weight: bold;
+    font-style: normal;
+    background-color: #f8f8f8;
+}
+
+h1 {
+    font-size: 32px;
+    line-height: 48px;
+    letter-spacing: 1px;
+    color: black;
+}
+
+h2 {
+    font-size: 24px;
+    line-height: 24px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: black;
+}
+
+h3 {
+    font-size: 17px;
+    text-transform: uppercase;
+    color: black;
+}
+
+.top > pre, .item > pre {
+    font-weight: bold;
+}
+
+/* Geometry. */
+
+body {
+    padding-top: 24px;
+    padding-bottom: 96px;
+    margin: 0;
+    padding-left: 21em;
+    padding-right: 6em;
+}
+
+h1 {
+    margin-top: 24px;
+    margin-bottom: 72px;
+}
+
+h2 {
+    margin-top: 120px;
+    margin-bottom: 24px;
+}
+
+h3 {
+    margin-top: 72px;
+    margin-bottom: 24px;
+}
+
+h2 + h3 {
+    margin-top: 72px;
+}
+
+.item {
+    margin-top: 48px;
+}
+
+.top > pre, .item > pre {
+    margin: 0;
+}
+
+.info pre:last-child {
+    margin-bottom: 48px;
+}
+
+.info {
+    margin-left: 3em;
+}
+
+li {
+    margin-bottom: 6px;
+}
+
+/* Hack. */
+h3:nth-of-type(1), h3:nth-of-type(2), h3:nth-of-type(3) {
+    margin-left: 2.823529411764706em;
+}
+
+p, ul, ol {
+    margin-top: 24px;
+    margin-bottom: 24px;
+}
+
+.info > p:first-of-type {
+    /*margin-top: 0;*/
+}
+
+pre {
+    margin-top: 24px;
+    margin-bottom: 24px;
+    overflow: auto;
+}
+
+.info pre, pre.codepre {
+    padding: 0 0 0 1.75em;
+}
+
+body > pre:first-of-type {
+    margin-top: 1.5em;
+}
+
+.info {
+    margin-bottom: 1.5em;
+}
+
+.info.top {
+    margin-bottom: 6em;
+}
+
+.multiline-member {
+    margin-top: 1.5em;
+}
+
+.end-of-section-text {
+    margin-bottom: 3em;
+}
+
+/* Links. */
+
+a {
+    color: blue;
+    text-decoration: none;
+    border-bottom: 1px solid #aaa;
+}
+
+a code {
+}
+
+.item > pre a {
+    border-bottom: none;
+}
+
+a:hover {
+    background-color: #ddd;
+}
+
+a .code {
+    color: #416DFF;
+}
+
+a.github {
+    font-weight: bold;
+}
+
+h2:target,
+a:target {
+    background-color: yellow;
+}
+
+h2[id] > a,
+a[id] {
+    color: inherit;
+    outline: none;
+}
+
+h2[id] > a:hover,
+a[id]:hover {
+    background-color: yellow;
+    text-decoration: none;
+}
+
+/* Syntax elements. */
+
+.info .keyword {
+}
+
+.superscript {
+    font-size: 4;
+}
+
+.subscript {
+    font-size: 4;
+}
+
+.string {
+}
+
+.comment {
+    color: #777;
+    font-size: 13px;
+    line-height: 24px;
+}
+
+.constructor {
+}
+
+/* Table of contents. */
+
+.toc {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 12em;
+    height: 100%;
+    padding-left: 2em;
+    padding-right: 2em;
+    padding-top: 60px;
+    border-right: 1px solid #eee;
+}
+
+.toc a {
+    border-bottom: none;
+}
+
+.toc h3 {
+    margin-left: 0;
+}
+
+.toc .level-3 {
+    margin-left: 1em;
+}
+
+.toc h3 {
+    display: none;
+}
+
+
+
+/* Legacy. */
+/*
+.toc {
+    position: fixed;
+    top: 3em;
+    left: 1em;
+}
+
+.toc p {
+    display: none;
+}
+
+.top-links {
+    float: right;
+    margin-top: 1.5em;
+    margin-right: 3em;
+}
+
+.top-links a {
+    margin-right: 1em;
+}
+
+@media (max-width:980px) {
+    body {
+        margin-left: 1em;
+    }
+
+    .toc {
+        position: static;
+    }
+
+    .toc p {
+        display: block;
+        margin-top: 3em;
+        font-weight: bold;
+    }
+
+    .toc .hide-narrow {
+        display: none;
+    }
+
+    .toc .links br:nth-of-type(1), .toc .links br:nth-of-type(2) {
+        display: none;
+    }
+
+    .toc .links {
+        columns: 15em 2;
+        -webkit-columns: 15em 2;
+        -moz-columns: 15em 2;
+    }
+}
+*/
