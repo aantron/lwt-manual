@@ -458,6 +458,46 @@ let () =
     end
   in
 
+  (* Make [%lwt] extension points part of the keywords they follow. *)
+  let () =
+    let extension = "%lwt" in
+    let extension_length = String.length extension in
+    soup $$ ".info > pre .keyword" |> iter begin fun keyword ->
+      match next_sibling keyword with
+      | Some sibling when not (is_element sibling) ->
+        let sibling_text = texts sibling |> String.concat "" in
+        let followed_by_extension =
+          try String.sub sibling_text 0 extension_length = extension
+          with Invalid_argument _ -> false
+        in
+        if not followed_by_extension then
+          ()
+        else
+          let () =
+            let new_keyword_text =
+              texts keyword
+              |> String.concat ""
+              |> fun s -> s ^ extension
+              |> create_text
+            in
+            clear keyword;
+            append_child keyword new_keyword_text
+          in
+          let () =
+            String.sub
+              sibling_text
+              extension_length
+              (String.length sibling_text - extension_length)
+            |> create_text
+            |> replace sibling
+          in
+          ()
+
+      | _ -> ()
+    end
+  in
+
+  (* Generate table of contents. *)
   let () =
     let toc = table_of_contents soup in
     let toc =

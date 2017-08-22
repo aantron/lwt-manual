@@ -4,7 +4,7 @@ html {
 }
 
 body {
-    border-right: 2px solid #eee;
+    border-right: 2px solid #e8e8e8;
     background-color: white;
 }
 
@@ -18,8 +18,13 @@ a {
     background-color: #fff8f8;
 }
 
+.item > pre a {
+    color: inherit;
+}
+
 .toc a {
     background-color: transparent;
+    text-decoration-color: #ff8080;
 }
 
 
@@ -74,7 +79,7 @@ body {
 .acronym {
     font-variant: small-caps;
     text-transform: lowercase;
-    font-size: 20px;
+    font-size: 19px;
     line-height: 1; /* Inheriting it messes up the paragraphs somehow. */
 }
 
@@ -121,6 +126,37 @@ h2 + .item, h3 + .item {
 
 
 
+/* Syntax highlighting. */
+.info .keyword {
+    color: #e00000;
+}
+
+.superscript {
+    font-size: 4;
+}
+
+.subscript {
+    font-size: 4;
+}
+
+.string {
+    color: #807070;
+}
+
+.comment {
+    color: #807070;
+    font-size: 13px;
+    line-height: 24px;
+}
+
+.constructor {
+    color: #c00000;
+}
+
+
+
+
+/* Old stuff. */
 
 /* Font size, line height. */
 
@@ -244,31 +280,6 @@ a[id]:hover {
     text-decoration: none;
 }
 
-/* Syntax elements. */
-
-.info .keyword {
-}
-
-.superscript {
-    font-size: 4;
-}
-
-.subscript {
-    font-size: 4;
-}
-
-.string {
-}
-
-.comment {
-    color: #777;
-    font-size: 13px;
-    line-height: 24px;
-}
-
-.constructor {
-}
-
 /* Table of contents. */
 
 .toc {
@@ -276,7 +287,7 @@ a[id]:hover {
 }
 
 .toc a {
-    border-bottom: none;
+    text-decoration-line: underline;
 }
 
 .toc h3 {
