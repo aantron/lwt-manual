@@ -300,6 +300,36 @@ let () =
   (* Read ocamldoc output from STDIN. *)
   let soup = read_channel stdin |> parse in
 
+  (* Read Lwt.Infix and inline it. *)
+  let () =
+    let infix_soup = read_file "../lwt/doc/api/html/Lwt.Infix.html" |> parse in
+
+    let module_brief = soup $ "body > pre:contains('Infix') ~ div" in
+    let destination = soup $ "body > pre:contains('Infix') ~ br" in
+
+    let module_info = infix_soup $ "pre + div" in
+    let module_items = infix_soup $$ "hr ~ *" |> to_list in
+
+    (* Copy over the module full description. Lwt.html has only the brief
+       description. *)
+    replace module_brief module_info;
+
+    (* Copy over the module contents. *)
+    module_items |> List.iter begin fun item ->
+      begin match name item with
+      | "pre" ->
+        let value_name_node = item $ "span span" |> R.next_sibling in
+        let value_name = R.leaf_text value_name_node |> String.trim in
+        " Infix." ^ value_name
+        |> create_text
+        |> replace value_name_node
+      | _ ->
+        ()
+      end;
+      insert_before destination item
+    end
+  in
+
   semantic_ocamldoc soup;
 
   (* Replace the title tag with a bunch of metadata from a file. *)
@@ -319,6 +349,9 @@ let () =
     delete sig_keyword
   in
   soup $ ".top > pre" |> trim_module_declaration;
+  soup $ ".item > pre:contains('Infix') a"
+  |> next_siblings
+  |> iter delete;
 
   (* Helper for text replacements. *)
   let text_nodes e =
@@ -497,6 +530,22 @@ let () =
     end
   in
 
+  (* Get rid of table.typetable. *)
+  let () =
+    soup $$ ".typetable" |> iter begin fun table ->
+      let type_name = table |> R.previous_element in
+      table $$ "tr" |> iter begin fun row ->
+        create_text "\n  | " |> append_child type_name;
+        row $ "td:nth-child(2)"
+        |> children
+        |> to_list
+        |> List.tl
+        |>List.iter (append_child type_name)
+      end;
+      delete table
+    end
+  in
+
   (* Generate table of contents. *)
   let () =
     let toc = table_of_contents soup in
@@ -505,9 +554,12 @@ let () =
         s.name <> "Deprecated")
     in
     let toc =
-      (Section {name = "[Top]"; anchor = ""; subsections = []})::
-      (Section {name = "Quick start"; anchor = "3_Quickstart"; subsections = []})::
-      (Section {name = "Tutorial"; anchor = "3_Tutorial"; subsections = []})::
+      (Section
+        {name = "[Top]"; anchor = ""; subsections = []})::
+      (Section
+        {name = "Quick start"; anchor = "3_Quickstart"; subsections = []})::
+      (Section
+        {name = "Tutorial"; anchor = "3_Tutorial"; subsections = []})::
       toc
     in
 
@@ -527,161 +579,38 @@ let () =
     soup $ "h2" |> fun h2 -> insert_before h2 toc_div
   in
 
+  (* Fix up long type signatures in wrapX functions. *)
+  let () =
+    soup $$ ".item[data-ml-identifier^='wrap']" |> iter begin fun wrap ->
+      let name = R.attribute "data-ml-identifier" wrap in
+      let arity =
+        try int_of_string (String.sub name 4 1)
+        with Invalid_argument _ -> 0
+      in
+      if arity < 1 then
+        ()
+      else
+        let signature = wrap $ "code" in
+        (* create_text "\n  " |> insert_before signature; *)
+        let text_node = R.child signature in
+        let text = R.leaf_text text_node in
+        let left_paren = String.index text '(' in
+        let right_paren = String.index text ')' in
+        let argument =
+          String.sub text (left_paren + 1) (right_paren - left_paren - 1) in
+        let link = signature $ "a" in
+        clear signature;
+        fmt "\n  (%s) ⟶\n    (%s " argument argument
+        |> create_text
+        |> append_child signature;
+        append_child signature link;
+        create_text ")" |> append_child signature
+    end
+  in
+
   (* Replace the <h1> element with a new header from header.html. *)
   read_file "docs/header.html" |> parse |> replace (soup $ "h1");
 
-(*
-  (* Remove the nav bar, horizontal rule, and some line breaks. *)
-  soup $ ".navbar" |> delete;
-  soup $ "hr" |> delete;
-  soup $$ "body > br" |> iter delete;
-
-  (* Remove unnecessary links to self. Replace them with their content. *)
-  soup $$ "a:contains(\"..\")" |> iter unwrap;
-
-  (* The Infix module should somehow be inlined. *)
-  (*soup $ "a:contains(\"Infix\")" |> unwrap;*)
-
-  (* Generate a table of contents after the module information text. For wide
-     (desktop) screens, CSS will move this to the top-left corner in fixed
-     position. *)
-  let table_of_contents =
-    (* List all the sections - get their ids and labels. *)
-    let sections =
-      soup $$ "h2"
-      |> to_list
-      |> List.map (fun h2 -> R.id h2, R.leaf_text h2)
-    in
-
-    (* Create a div to hold the entire table of contents. This is the element
-       that is conditionally positioned. *)
-    let div = create_element ~class_:"toc" "div" in
-
-    (* Give the TOC a heading. This is only displayed at narrow widths. *)
-    create_element ~inner_text:"Module contents" "p" |> append_child div;
-
-    (* Generate a nested div to hold only the links. This element has a
-       multi-column style applied to it on narrow displays. *)
-    let links = create_element ~class_:"links" "div" in
-    append_child div links;
-
-    (* Iterate over the pairs of section id/section label. Add an anchor to the
-       div just created for each section. Include a [Top] link first. *)
-    ("", "[Top]")::sections |> List.iter (fun (id, title) ->
-      create_element ~attributes:["href", "#" ^ id] ~inner_text:title "a"
-      |> append_child links;
-      create_element "br" |> append_child links);
-
-    (* Separate the [Top] link from the rest by a line break. *)
-    create_element "br" |> insert_after (div $ "a");
-
-    (* Add some blank lines before the GitHub link. *)
-    create_element "br" |> append_child div;
-    create_element "br" |> append_child div;
-
-    (* Add the GitHub link at the bottom of the table of contents. *)
-    create_element
-      ~attributes:["href", "https://github.com/aantron/lambda-soup"]
-      ~classes:["github"; "hide-narrow"] ~inner_text:"GitHub"
-      "a"
-    |> append_child div;
-
-    (* Hide the [Top] link if the display gets narrow. Since the table of
-       contents becomes statically (normally) positioned at narrow widths, the
-       top link will scroll off screen when scrolling away from the top, and
-       thus become useless for returning to the top. *)
-    div $ "a" |> set_attribute "class" "hide-narrow";
-
-    (* Finally, evaluate to the TOC container div. *)
-    div
-  in
-
-  (* Place the table of contents at the end of the module description. *)
-  append_child (soup $$ ".info" |> R.nth 2) table_of_contents;
-
-  (* Find every multi-line signature member declaration, and add a class to its
-     info block. This class allow special styling with CSS, such as a wider top
-     margin. *)
-  soup $$ "pre"
-  |> filter (fun e -> e $? ".type" <> None)
-  |> filter (fun e -> e $? "br" <> None)
-  |> iter (fun e ->
-    match e $? "+ .info" with
-    | None -> ()
-    | Some e -> e |> add_class "multiline-member");
-
-  (* Find every section that has additional text after the title, and add a
-     class to the last element of such text. This is used by CSS to increase
-     spacing. *)
-  soup $$ "h2" |> iter (fun h2 ->
-    let e = h2 $ "~ pre:not(.codepre)" |> R.previous_element in
-    if name e = "h2" then ()
-    else add_class "end-of-section-text" e);
-
-  (* Clean up links in the head. *)
-  soup $$ "head link:not([rel=stylesheet])" |> iter delete;
-
-  (* Replace the title tag with a bunch of metadata from file. *)
-  read_file "meta.html" |> parse |> replace (soup $ "title");
-
-  (* Fix up internal cross-references by dropping the module prefix, and
-     correcting the destination. *)
-(*
-  soup $$ "a[href^=Soup.html#]"
-  |> iter (fun a ->
-    let href = a |> R.attribute "href" in
-    String.sub href 9 (String.length href - 9)
-    |> fun v -> set_attribute "href" v a;
-
-    let text = texts a |> String.concat "" in
-    let starts_with_module =
-      try String.sub text 0 5 = "Soup."
-      with Invalid_argument _ -> false
-    in
-
-    if starts_with_module then
-      let value_name = String.sub text 5 (String.length text - 5) in
-      clear (R.child a);
-      create_text value_name |> append_child (a |> R.child_element));
-*)
-  (* Insert clickable anchors. *)
-  soup $$ "span[id]" |> iter (fun span ->
-    set_name "a" span;
-    set_attribute "href" ("#" ^ (R.attribute "id" span)) span);
-
-  soup $$ "h2[id]" |> iter (fun h2 ->
-    let href = "#" ^ (R.attribute "id" h2) in
-    let a =
-      create_element
-        ~attributes:["href", href] ~inner_text:(R.leaf_text h2) "a";
-    in
-    clear h2;
-    append_child h2 a);
-
-  soup $$ "h2 ~ pre > span.keyword:contains('module')" |> iter (fun span ->
-    let pre = R.parent span in
-    let name = R.nth 3 (children pre) |> R.leaf_text |> String.trim in
-    let anchor = fmt "MODULE%s" name in
-    let replacement =
-      fmt
-        "<a href='#%s' id='%s'><span class='keyword'>module</span> %s</a> : %s"
-        anchor anchor name
-        ("<code class='code'><span class='keyword'>sig</span></code>" ^
-         " .. " ^
-         "<code class='code'><span class='keyword'>end</span></code>")
-    in
-    clear pre;
-    parse replacement |> children |> iter (append_child pre));
-
-  soup $$ "li code" |> iter begin fun code ->
-    texts code
-    |> String.concat ""
-    |> create_text
-    |> fun text_node ->
-      clear code;
-      append_child code text_node
-  end;
-*)
   (* Convert the soup back to HTML and write to STDOUT. The Makefile redirects
      that to the right output file. *)
   soup |> to_string |> write_channel stdout

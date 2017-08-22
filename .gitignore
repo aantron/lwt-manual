@@ -1,3 +1,4 @@
 *.cm*
+*.o
 a.out
 Lwt.html

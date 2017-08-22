@@ -20,6 +20,7 @@ a {
 
 .item > pre a {
     color: inherit;
+    background-color: inherit;
 }
 
 .toc a {
@@ -102,26 +103,26 @@ h1 {
 h2 {
     line-height: 24px;
     margin-top: 144px;
-    margin-bottom: 24px;
+    margin-bottom: 48px;
 }
 
 h3 {
     font-size: 17px;
     line-height: 24px;
     margin-top: 96px;
-    margin-bottom: 24px;
+    margin-bottom: 48px;
 }
 
 h2 + h3 {
     margin-top: 48px;
 }
 
-.item {
-    margin-top: 4.5em;
+.item .info {
+    margin-bottom: 4.5em;
 }
 
-h2 + .item, h3 + .item {
-    margin-top: 3em;
+.item {
+    margin-top: 1.5em;
 }
 
 
@@ -149,8 +150,15 @@ h2 + .item, h3 + .item {
     line-height: 24px;
 }
 
-.constructor {
+.info .constructor {
     color: #c00000;
+}
+
+
+
+/* Font styles. */
+.item > pre .keyword:first-of-type, .top > pre > .keyword {
+    font-weight: bold;
 }
 
 
