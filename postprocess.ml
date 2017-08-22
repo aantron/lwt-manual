@@ -608,6 +608,26 @@ let () =
     end
   in
 
+  (* Line break for try_bind's long type signature. *)
+  let () =
+    let signature =
+      soup $ ".item[data-ml-identifier='try_bind'] > pre > code" in
+    create_text "\n  " |> insert_before signature
+  in
+
+  (* Be explicit about Lwt type names. *)
+  let () =
+    soup $$ ".item > pre a" |> iter begin fun link ->
+      match R.leaf_text link with
+      | "t" | "u" | "result" | "state" | "key" as text ->
+        clear link;
+        "Lwt." ^ text
+        |> create_text
+        |> append_child link
+      | _ -> ()
+    end
+  in
+
   (* Replace the <h1> element with a new header from header.html. *)
   read_file "docs/header.html" |> parse |> replace (soup $ "h1");
 
