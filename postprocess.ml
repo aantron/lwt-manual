@@ -409,6 +409,10 @@ let () =
   soup $$ "li code" |> iter greek_replacement;
 
   (* Arrow replacement. *)
+  (* Note: the nice two-character arrows are actually coming from STIXGeneral,
+     which is probably only installed by macOS by default. When Chrome fails to
+     find a character for the long arrow in Courier, it hits monospace, and
+     looks up the arrow in STIXGeneral. *)
   let arrow_replacement =
     let re = Re.str "->" |> Re.compile in
 

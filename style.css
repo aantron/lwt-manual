@@ -1,28 +1,74 @@
-/* Basic colors. */
+/* Colors. */
 html {
-    color: #444;
+    background-color: #fcfcfc;
 }
 
 body {
-    border-right: 1px solid #eee;
+    border-right: 2px solid #eee;
+    background-color: white;
 }
 
-/* Fonts and lines. */
+.toc {
+    background-color: #f8f7f7;
+    border-right: 2px solid #e4e4e4;
+}
+
+a {
+    color: red;
+    background-color: #fff8f8;
+}
+
+.toc a {
+    background-color: transparent;
+}
+
+
+
+/* Font faces. */
 
 body {
-    font-family: Georgia, Times, "Times New Roman", serif;
-    font-size: 16px;
-    line-height: 24px;
+    font-family: Georgia, serif;
+}
+
+/* At least for Chrome on macOS, this makes:
+  - Latin characters render in Courier.
+  - Greek letters render in Times.
+  - Unicode right arrows render as long, 2-width arrows from STIXGeneral. */
+pre, code {
+    font-family: Courier, Times, STIXGeneral, monospace;
+}
+
+
+
+/* Positioning and horizontal spacing of body, table of contents. */
+body {
     max-width: 45em;
+    padding-left: 22em;
+    padding-right: 6em;
+    margin-left: 0;
+    margin-right: 0;
 }
 
-p code, li code {
-    font-family: Courier, monospace;
-    font-size: 15.5px;
+.toc {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 13em;
+    padding-left: 2em;
+    padding-right: 2em;
 }
 
-.info pre {
-    font-size: 15px;
+
+
+/* Vertical: font size, line height, blank spaces. */
+body {
+    font-size: 16px;
+    line-height: 1.5;
+    padding-top: 1.5em;
+    padding-bottom: 6em;
+    margin-top: 0;
+    margin-bottom: 0;
 }
 
 .acronym {
@@ -30,6 +76,55 @@ p code, li code {
     text-transform: lowercase;
     font-size: 20px;
     line-height: 1; /* Inheriting it messes up the paragraphs somehow. */
+}
+
+p code, li code {
+    font-size: 15.25px;
+}
+
+.info pre {
+    font-size: 14px;
+    line-height: 24px;
+    margin-top: 24px;
+    margin-bottom: 24px;
+}
+
+h1 {
+    margin-top: 24px;
+    margin-bottom: 72px;
+}
+
+h2 {
+    line-height: 24px;
+    margin-top: 144px;
+    margin-bottom: 24px;
+}
+
+h3 {
+    font-size: 17px;
+    line-height: 24px;
+    margin-top: 96px;
+    margin-bottom: 24px;
+}
+
+h2 + h3 {
+    margin-top: 48px;
+}
+
+.item {
+    margin-top: 4.5em;
+}
+
+h2 + .item, h3 + .item {
+    margin-top: 3em;
+}
+
+
+
+
+/* Font size, line height. */
+
+.acronym {
     letter-spacing: 0.5px;
 }
 
@@ -40,62 +135,19 @@ p em {
 }
 
 h1 {
-    font-size: 32px;
-    line-height: 48px;
     letter-spacing: 1px;
-    color: black;
 }
 
 h2 {
-    font-size: 24px;
-    line-height: 24px;
     text-transform: uppercase;
     letter-spacing: 1px;
-    color: black;
 }
 
 h3 {
-    font-size: 17px;
     text-transform: uppercase;
-    color: black;
-}
-
-.top > pre, .item > pre {
-    font-weight: bold;
 }
 
 /* Geometry. */
-
-body {
-    padding-top: 24px;
-    padding-bottom: 96px;
-    margin: 0;
-    padding-left: 21em;
-    padding-right: 6em;
-}
-
-h1 {
-    margin-top: 24px;
-    margin-bottom: 72px;
-}
-
-h2 {
-    margin-top: 120px;
-    margin-bottom: 24px;
-}
-
-h3 {
-    margin-top: 72px;
-    margin-bottom: 24px;
-}
-
-h2 + h3 {
-    margin-top: 72px;
-}
-
-.item {
-    margin-top: 48px;
-}
 
 .top > pre, .item > pre {
     margin: 0;
@@ -123,18 +175,14 @@ p, ul, ol {
     margin-bottom: 24px;
 }
 
-.info > p:first-of-type {
-    /*margin-top: 0;*/
-}
-
 pre {
-    margin-top: 24px;
-    margin-bottom: 24px;
     overflow: auto;
 }
 
 .info pre, pre.codepre {
     padding: 0 0 0 1.75em;
+    border-left: 2px solid #ffc0c0;
+    background-color: #fcfbfb;
 }
 
 body > pre:first-of-type {
@@ -160,12 +208,7 @@ body > pre:first-of-type {
 /* Links. */
 
 a {
-    color: blue;
     text-decoration: none;
-    border-bottom: 1px solid #aaa;
-}
-
-a code {
 }
 
 .item > pre a {
@@ -229,15 +272,7 @@ a[id]:hover {
 /* Table of contents. */
 
 .toc {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 12em;
-    height: 100%;
-    padding-left: 2em;
-    padding-right: 2em;
     padding-top: 60px;
-    border-right: 1px solid #eee;
 }
 
 .toc a {
@@ -249,7 +284,7 @@ a[id]:hover {
 }
 
 .toc .level-3 {
-    margin-left: 1em;
+    margin-left: 1.5em;
 }
 
 .toc h3 {
