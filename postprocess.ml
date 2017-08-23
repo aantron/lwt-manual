@@ -362,7 +362,7 @@ let () =
 
   (* Tag acronyms. *)
   let () =
-    let acronyms = ["I/O"; "PPX"; "STDIN"; "STDOUT"] in
+    let acronyms = ["I/O"; "PPX"; "STDIN"; "STDOUT"; "CPU"; "API"] in
     let regexp =
       let open Re in
       acronyms
@@ -560,11 +560,25 @@ let () =
     in
     let toc =
       (Section
-        {name = "[Top]"; anchor = ""; subsections = []})::
+        {name = "[Top]";
+         anchor = "";
+         subsections = []})::
       (Section
-        {name = "Quick start"; anchor = "3_Quickstart"; subsections = []})::
+        {name = "Quick start";
+         anchor = "3_Quickstart";
+         subsections = []})::
       (Section
-        {name = "Tutorial"; anchor = "3_Tutorial"; subsections = []})::
+        {name = "Tutorial";
+         anchor = "3_Tutorial";
+         subsections = []})::
+      (Section
+        {name = "Execution model";
+         anchor = "3_Executionmodel";
+         subsections = []})::
+      (Section
+        {name = "Library guide";
+         anchor = "3_GuidetotherestofLwt";
+         subsections = []})::
       toc
     in
 
