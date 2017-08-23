@@ -24,8 +24,9 @@ a {
 }
 
 .toc a {
+    color: #c00000;
     background-color: transparent;
-    text-decoration-color: #ff8080;
+    text-decoration-color: #c04040;
 }
 
 
@@ -172,12 +173,6 @@ h2 + h3 {
     letter-spacing: 0.5px;
 }
 
-p em {
-    font-weight: bold;
-    font-style: normal;
-    background-color: #f8f8f8;
-}
-
 h1 {
     letter-spacing: 1px;
 }
@@ -292,10 +287,6 @@ a[id]:hover {
 
 .toc {
     padding-top: 60px;
-}
-
-.toc a {
-    text-decoration-line: underline;
 }
 
 .toc h3 {

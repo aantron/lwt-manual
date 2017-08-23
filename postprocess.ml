@@ -362,7 +362,7 @@ let () =
 
   (* Tag acronyms. *)
   let () =
-    let acronyms = ["I/O"; "PPX"; "STDIN"] in
+    let acronyms = ["I/O"; "PPX"; "STDIN"; "STDOUT"] in
     let regexp =
       let open Re in
       acronyms
@@ -371,31 +371,36 @@ let () =
       |> compile
     in
 
-    soup $$ "p" |> iter begin fun p ->
-      p |> text_nodes |> iter begin fun t ->
-        texts t
-        |> String.concat ""
-        |> Re.split_full regexp
-        |> List.map begin function
-          | `Text t -> create_text t
-          | `Delim g ->
-            create_element
-              "span" ~class_:"acronym" ~inner_text:(Re.Group.get g 0)
-            |> Obj.magic
-          end
-        |> function
-          | [] -> delete t
-          | first::rest ->
-            replace t first;
-            let rec insert_rest last = function
-              | [] -> ()
-              | current::rest ->
-                insert_after last current;
-                insert_rest current rest
-            in
-            insert_rest first rest
+    let in_elements name =
+      soup $$ name |> iter begin fun p ->
+        p |> text_nodes |> iter begin fun t ->
+          texts t
+          |> String.concat ""
+          |> Re.split_full regexp
+          |> List.map begin function
+            | `Text t -> create_text t
+            | `Delim g ->
+              create_element
+                "span" ~class_:"acronym" ~inner_text:(Re.Group.get g 0)
+              |> Obj.magic
+            end
+          |> function
+            | [] -> delete t
+            | first::rest ->
+              replace t first;
+              let rec insert_rest last = function
+                | [] -> ()
+                | current::rest ->
+                  insert_after last current;
+                  insert_rest current rest
+              in
+              insert_rest first rest
+        end
       end
-    end
+    in
+
+    in_elements "p";
+    in_elements "li"
   in
 
   (* Get rid of syntax highlighting in inline code. *)
