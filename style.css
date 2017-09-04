@@ -92,8 +92,8 @@ p code, li code {
 .info pre {
     font-size: 14px;
     line-height: 24px;
-    margin-top: 24px;
-    margin-bottom: 24px;
+    margin-top: 2.25em;
+    margin-bottom: 2.25em;
 }
 
 h1 {
