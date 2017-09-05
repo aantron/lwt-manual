@@ -555,8 +555,11 @@ let () =
   let () =
     let toc = table_of_contents soup in
     let toc =
-      toc |> List.filter (fun (Section s) ->
-        s.name <> "Deprecated")
+      toc |> List.map (fun (Section s) ->
+        if s.name = "Deprecated" then
+          Section {s with subsections = []}
+        else
+          (Section s))
     in
     let toc =
       (Section
