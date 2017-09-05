@@ -18,7 +18,7 @@ a {
     background-color: #fff8f8;
 }
 
-.item > pre a {
+.item > pre a:not(.anchor) {
     color: inherit;
     background-color: inherit;
 }
@@ -27,6 +27,11 @@ a {
     color: #c00000;
     background-color: transparent;
     text-decoration-color: #c04040;
+}
+
+a.anchor {
+    color: #c00000;
+    background-color: transparent;
 }
 
 
@@ -164,6 +169,31 @@ h2 + h3 {
 
 
 
+/* Anchors. */
+h2, h3, .item {
+    position: relative;
+}
+
+a.anchor {
+    position: absolute;
+    left: -1.5em;
+    top: -0.5em;
+    padding: 0.5em;
+    visibility: hidden;
+}
+
+a.anchor:hover {
+    background-color: transparent;
+}
+
+h2:hover > a.anchor,
+h3:hover > a.anchor,
+.item pre:hover > a.anchor,
+a.anchor:hover {
+    visibility: visible;
+}
+
+
 
 /* Old stuff. */
 
@@ -266,20 +296,9 @@ a.github {
     font-weight: bold;
 }
 
-h2:target,
-a:target {
-    background-color: yellow;
-}
-
-h2[id] > a,
-a[id] {
-    color: inherit;
-    outline: none;
-}
-
 h2[id] > a:hover,
 a[id]:hover {
-    background-color: yellow;
+    /* background-color: yellow; */
     text-decoration: none;
 }
 

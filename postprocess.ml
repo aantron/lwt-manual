@@ -335,23 +335,32 @@ let () =
   (* Replace the title tag with a bunch of metadata from a file. *)
   read_file "docs/meta.html" |> parse |> replace (soup $ "title");
 
-  (* Get rid of the pointless : sig .. end stuff. *)
-  let trim_module_declaration e =
-    let text_node = children e |> R.nth 2 in
-    let content = texts text_node |> String.concat "" in
-    (String.length content) - 2
-    |> String.sub content 0
-    |> create_text
-    |> replace text_node;
+  let () =
+    (* Get rid of the pointless : sig .. end stuff. *)
+    let trim_module_declaration e =
+      let text_node = children e |> R.nth 2 in
+      let content = texts text_node |> String.concat "" in
+      (String.length content) - 2
+      |> String.sub content 0
+      |> create_text
+      |> replace text_node;
 
-    let sig_keyword = e $ "code" in
-    sig_keyword |> next_siblings |> iter delete;
-    delete sig_keyword
+      let sig_keyword = e $ "code" in
+      sig_keyword |> next_siblings |> iter delete;
+      delete sig_keyword
+    in
+    soup $ ".top > pre" |> trim_module_declaration;
+    soup $ ".item > pre:contains('Infix') a"
+    |> next_siblings
+    |> iter delete
   in
-  soup $ ".top > pre" |> trim_module_declaration;
-  soup $ ".item > pre:contains('Infix') a"
-  |> next_siblings
-  |> iter delete;
+
+  let () =
+    (* Adjust the inlined Infix module markup. *)
+    soup $ ".item > pre:contains('Infix') a" |> unwrap;
+    soup $ ".item > pre:contains('Infix') span"
+    |> set_attribute "id" "MODULEInfix"
+  in
 
   (* Helper for text replacements. *)
   let text_nodes e =
@@ -595,7 +604,7 @@ let () =
 
     toc_div $ "br" |> delete;
 
-    create_element "h3" ~inner_text:"Table of contents"
+    create_element "h3" ~inner_text:"Table of contents" ~id:"toc"
     |> prepend_child toc_div;
 
     soup $ "h2" |> fun h2 -> insert_before h2 toc_div
@@ -648,6 +657,100 @@ let () =
         |> append_child link
       | _ -> ()
     end
+  in
+
+  (* Create clickable anchors. *)
+  let () =
+    let for_element get_id element =
+      let anchor = "#" ^ (get_id element) in
+      let link =
+        create_element
+          ~class_:"anchor"
+          ~attributes:["href", anchor]
+          ~inner_text:"¶"
+          "a"
+      in
+      prepend_child element link
+    in
+
+    soup $$ "h2" |> iter (for_element (fun h2 -> R.id h2));
+    soup $$ "h3" |> iter (for_element (fun h3 -> R.id h3));
+    soup $$ ".item > pre" |> iter (for_element (fun item ->
+      item $ "span[id]" |> R.id));
+    ()
+  in
+
+  (* Final dirty patches. *)
+  let () =
+    let wrap_first_argument_list element =
+      let text_span = element $ "> pre > code" in
+      let first = text_span |> children |> R.nth 1 in
+      first
+      |> R.leaf_text
+      |> fun s -> "(" ^ s
+      |> create_text
+      |> replace first;
+      let third = text_span |> children |> R.nth 3 in
+      third
+      |> R.leaf_text
+      |> fun s -> ")" ^ s
+      |> create_text
+      |> replace third
+    in
+    soup $ ".item[data-ml-identifier=join]" |> wrap_first_argument_list;
+    soup $ ".item[data-ml-identifier=pick]" |> wrap_first_argument_list;
+    soup $ ".item[data-ml-identifier=choose]" |> wrap_first_argument_list;
+    soup $ ".item[data-ml-identifier=npick]" |> wrap_first_argument_list;
+    soup $ ".item[data-ml-identifier=nchoose]" |> wrap_first_argument_list;
+    soup $ ".item[data-ml-identifier=nchoose_split]"
+    |> wrap_first_argument_list;
+
+    let replace_nth_text selector n replacement =
+      create_text replacement
+      |> replace (soup $ selector |> children |> R.nth n)
+    in
+    replace_nth_text
+      ".item[data-ml-identifier=npick] > pre > code" 3 ") list ⟶ (α list) ";
+    replace_nth_text
+      ".item[data-ml-identifier=nchoose] > pre > code" 3 ") list ⟶ (α list) ";
+    replace_nth_text
+      ".item[data-ml-identifier=nchoose_split] > pre > code" 3
+      ") list ⟶ (α list * [(α ";
+    replace_nth_text
+      ".item[data-ml-identifier=nchoose_split] > pre > code" 5
+      ") list]) ";
+
+    replace_nth_text
+      ".item[data-ml-identifier=return_none] > pre > code" 1
+      "(α option) ";
+    replace_nth_text
+      ".item[data-ml-identifier=return_nil] > pre > code" 1
+      "(α list) ";
+
+    replace_nth_text
+      ".item[data-ml-identifier=add_task_r] > pre > code" 1
+      "(α ";
+    replace_nth_text
+      ".item[data-ml-identifier=add_task_r] > pre > code" 3
+      ") ";
+
+    replace_nth_text
+      ".item[data-ml-identifier=add_task_l] > pre > code" 1
+      "(α ";
+    replace_nth_text
+      ".item[data-ml-identifier=add_task_l] > pre > code" 3
+      ") ";
+
+    replace_nth_text
+      ".item[data-ml-identifier=return_some] > pre > code" 1
+      "α ⟶ (α option) ";
+
+    replace_nth_text
+      ".item[data-ml-identifier=return_ok] > pre > code" 1
+      "α ⟶ [(α, β) Result.result] ";
+    replace_nth_text
+      ".item[data-ml-identifier=return_error] > pre > code" 1
+      "α ⟶ [(α, β) Result.result] ";
   in
 
   (* Replace the <h1> element with a new header from header.html. *)
