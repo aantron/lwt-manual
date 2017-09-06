@@ -322,7 +322,13 @@ let () =
         let value_name = R.leaf_text value_name_node |> String.trim in
         " Infix." ^ value_name
         |> create_text
-        |> replace value_name_node
+        |> replace value_name_node;
+        (* Adjust the id. *)
+        let span = item $ "span" in
+        span
+        |> R.attribute "id"
+        |> fun s -> "Infix." ^ s
+        |> fun s -> set_attribute "id" s span
       | _ ->
         ()
       end;
@@ -751,6 +757,31 @@ let () =
     replace_nth_text
       ".item[data-ml-identifier=return_error] > pre > code" 1
       "α ⟶ [(α, β) Result.result] ";
+  in
+
+  let () =
+    let extract_annotations annotation paragraph =
+      match paragraph $? (fmt "b:contains('%s')" annotation) with
+      | None -> ()
+      | Some annotation ->
+        let new_paragraph = create_element "p" in
+        (Obj.magic annotation)::(annotation |> next_siblings |> to_list)
+        |> List.iter (append_child new_paragraph);
+        insert_after paragraph new_paragraph
+    in
+    soup $ ".item[data-ml-identifier=return_ok] p"
+    |> extract_annotations "Since";
+    soup $ ".item[data-ml-identifier=return_error] p"
+    |> extract_annotations "Since";
+    soup $ ".item[data-ml-identifier=make_value] p"
+    |> extract_annotations "Deprecated";
+  in
+
+  let () =
+    let element =
+      soup $ ".item[data-ml-identifier=result] > pre > span > code" in
+    clear element;
+    append_child element (create_text "+α")
   in
 
   (* Replace the <h1> element with a new header from header.html. *)
